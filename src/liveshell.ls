@@ -55,3 +55,5 @@ list-bin! |> each register-bin
 Sync ->
 	cd "lib"
 	(ls '.' |> lookup \out).then process.stdout.write
+
+	cat "file" |> grep "whatever"
