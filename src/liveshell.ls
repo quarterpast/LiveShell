@@ -3,7 +3,7 @@ path = require \path
 cp = require \child_process
 global <<< require \prelude-ls
 q = require \q
-
+Sync = require \sync
 cwd = process.cwd!
 
 register-bin(file)=

@@ -31,6 +31,7 @@
   "dependencies": {
     "prelude-ls": ">=0.2.0",
     "qq": ">=0.3.4",
+    "sync": ">=0.2",
     "LiveScript": ">=0.9.8c",
     "mime-magic": ">=0.2.6",
     "q": ">=0.8.5"
