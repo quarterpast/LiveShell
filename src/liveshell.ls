@@ -8,9 +8,12 @@ cwd = process.cwd!
 
 register-bin(file)=
 	global[path.basename file] = (args='',stream={process.stdout,process.stderr})->
-		cmd = cp.exec-file file, args, {cwd,process.env}
-		cmd.stdout.pipe stream.stdout
-		cmd.stderr.pipe stream.stderr
+		defer = q.defer!
+		cmd = cp.exec-file file,args,{cwd,process.env},(e,out,err)->
+			stream.stdout.write out
+			stream.stderr.write err
+			defer.resolve e
+		return defer.promise
 
 read-dir(dir)=
 	fs.readdir-sync dir
@@ -27,6 +30,4 @@ cd(dir)=
 
 list-bin! |> each register-bin
 
-ls!
-cd '..'
-ls!
+cat 'lib/liveshell.js'
