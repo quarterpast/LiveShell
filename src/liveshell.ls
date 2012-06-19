@@ -26,12 +26,13 @@ promise-stream = async (read,length=1024)->
 register-bin(file)=
 	global[path.basename file] = async (
 			args='',
-			streams
+			streams={}
 	)->
 		console.log file,args
 		cmd = cp.spawn file,(args.split /\s+/),{cwd,process.env}
 		if streams.stdin?
 			streams.stdin.pipe cmd
+		else process.stdin.pipe cmd
 		out = promise-stream cmd.stdout
 		err = promise-stream cmd.stderr
 		return {out,err}
@@ -53,4 +54,4 @@ list-bin! |> each register-bin
 
 Sync ->
 	cd "lib"
-	ls '.'
+	(ls '.' |> lookup \out).then process.stdout.write
