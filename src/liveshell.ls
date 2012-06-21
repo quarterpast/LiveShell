@@ -5,29 +5,14 @@ global <<< require \prelude-ls
 q = require \q
 Sync = require \sync
 repl = require \repl
+LiveScript = require \LiveScript
+vm = require \vm
 cwd = process.cwd!
 
 async = call \async
 
-promise-stream = async (read,length=1024)->
-	defer = q.defer!
-	offset = 0
-	$buffer = new Buffer length
-	read.on \error, (e)-> throw e
-	read.on \data, (chunk)->
-		if chunk.length > $buffer.length - offset
-			bigger = new Buffer $buffer.length+1024
-			$buffer.copy bigger
-			$buffer := bigger
-		chunk.copy $buffer,offset
-		offset += chunk.length
-	read.on \end, ->defer.resolve $buffer
-	return defer.promise
-
-exec(line)=
-
-register-bin(file)=
-	global[path.basename file] = async (
+register-bin(obj,file)=
+	obj[path.basename file] = (
 			args='',
 			streams={}
 	)->
@@ -47,12 +32,22 @@ list-bin()=
 	|> map read-dir
 	|> concat
 
-cd = (dir)->
-	process.env.PWD = cwd := path.resolve cwd,dir
+run(ctx,code)=
+	vm.runInNewContext code,ctx
 
-list-bin! |> each register-bin
+exec = async (ctx,line)-->
+	try
+		out = LiveScript.compile line,{+bare} |> run ctx
+		if stdout of out then out.stdout.pipe process.stdout
+		return [null,""]
+	catch
+		return e
+
+PS1(user,host,dir)= "\x1b[1;37m[\x1b[1;34m#user@#host \x1b[0;32m#dir\x1b[1;37m]\x1b[0m$"
 
 Sync ->
-	cd "lib"
-	echo 'hello' .stdout.pipe process.stdout
 
+	list-bin! |> each register-bin ctx={}
+	ctx.cd = (dir)->
+		process.env.PWD = cwd := path.resolve cwd,dir
+	srv = repl.start (PS1 \matt,\Vera,\~),null,exec ctx
