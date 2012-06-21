@@ -42,6 +42,12 @@ exec(ctx,line)=
 	catch
 		console.warn e
 
+prompt(i,line)=
+	[p,l] = PS1 \matt,\Vera,path.basename cwd
+	i.set-prompt p,l.length
+	i.prompt!
+	line
+
 PS1(user,host,dir)=
 	["\x1b[1;37m[\x1b[1;34m#user@#host \x1b[0;32m#dir\x1b[1;37m]\x1b[0m$","[#user@#host #dir]$ "]
 
@@ -50,7 +56,6 @@ Sync ->
 	ctx.cd = (dir)->
 		process.env.PWD = cwd := path.resolve cwd,dir
 
-	with rl.create-interface process.stdin,process.stdout
-		[p,l] = PS1 \matt,\Vera,path.basename cwd
-		@set-prompt p,l.length
-		@prompt!
+	i = rl.create-interface process.stdin,process.stdout
+	i.on \line, (prompt i) << (exec ctx)
+	prompt i,''
