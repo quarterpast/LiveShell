@@ -37,13 +37,15 @@ run(ctx,code)=
 
 exec(i,ctx,line)=
 	try
-		out = LiveScript.compile line,{+bare} |> run ctx
+		out = (LiveScript.compile line,{+bare} |> run ctx)
 		if out.stdout? then
-			out.stdout.on \data, ->
-				console.log it
-				i.write it
+			out.stdout.pipe process.stdout
+		return out
 	catch
 		console.warn e
+	e = new process.EventEmitter
+	process.next-tick partial e~fire, \exit
+	return e
 
 prompt(i)=
 	[p,l] = PS1 \matt,\Vera,path.basename cwd
@@ -60,6 +62,7 @@ Sync ->
 
 	i = rl.create-interface process.stdin,process.stdout
 	i.on \line, ->
-		exec i,ctx,it
-		prompt i
+		exec i,ctx,it .on \exit, (code,signal)->
+			| code is not 0 => console.warn "#code ↵"
+			prompt i
 	prompt i
