@@ -38,7 +38,7 @@ run(ctx,code)=
 exec(ctx,line)=
 	try
 		out = LiveScript.compile line,{+bare} |> run ctx
-		if \stdout of out then out.stdout.pipe process.stdout
+		if out.stdout? then out.stdout.pipe process.stdout
 	catch
 		console.warn e
 
