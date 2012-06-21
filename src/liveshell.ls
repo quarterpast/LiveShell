@@ -66,6 +66,6 @@ Sync ->
 	i = rl.create-interface process.stdin,process.stdout
 	i.on \line, ->
 		exec i,ctx,it .on \exit, (code,signal)->
-			| code is not 0 => console.warn "#code ↵"
+			| code is not 0 => console.warn "\x1b[1;31m#code ↵\x1b[0m"
 			prompt i
 	prompt i
