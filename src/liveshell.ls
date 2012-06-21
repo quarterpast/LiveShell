@@ -59,6 +59,9 @@ Sync ->
 	list-bin! |> each register-bin ctx={}
 	ctx.cd = (dir)->
 		process.env.PWD = cwd := path.resolve cwd,dir
+		e = new process.EventEmitter
+		process.next-tick partial e~fire, \exit
+		return e
 
 	i = rl.create-interface process.stdin,process.stdout
 	i.on \line, ->
