@@ -16,7 +16,7 @@ register-bin(obj,file)=
 			args='',
 			streams={}
 	)->
-		cmd = cp.spawn file,(args.split /\s+/),{cwd,process.env}
+		cmd = cp.spawn file,(args.to-string!.split /\s+/),{cwd,process.env}
 		if streams.stdin?
 			streams.stdin.pipe cmd
 		else process.stdin.pipe cmd
